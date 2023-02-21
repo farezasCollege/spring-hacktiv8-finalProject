@@ -2,6 +2,7 @@ package com.starterkit.springboot.brs.service;
 
 import com.starterkit.springboot.brs.dto.model.bus.*;
 import com.starterkit.springboot.brs.dto.model.user.UserDto;
+import com.starterkit.springboot.brs.model.bus.FoodAndBevList;
 
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ public interface BusReservationService {
     TripScheduleDto getTripSchedule(TripDto tripDto, String tripDate, boolean createSchedForTrip);
 
     //Ticket related method
-    TicketDto bookTicket(TripScheduleDto tripScheduleDto, UserDto passenger);
+    TicketDto bookTicket(TripScheduleDto tripScheduleDto, UserDto passenger, int fandbdto);
 
+    List<FoodBevDto> getFoodBevListByTripSchedule(Long TripScheduleCode);
 }

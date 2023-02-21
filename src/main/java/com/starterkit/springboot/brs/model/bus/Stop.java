@@ -1,9 +1,17 @@
 package com.starterkit.springboot.brs.model.bus;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import javax.persistence.ManyToMany;
+
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
 
 import javax.persistence.*;
 
@@ -34,4 +42,12 @@ public class Stop {
     private String name;
 
     private String detail;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "food_bev_relation", 
+        joinColumns = { @JoinColumn(name="food_stops_id", unique = false) }, 
+        inverseJoinColumns = { @JoinColumn(name = "food_package_id", unique = false) }
+    )
+    Set<FoodAndBevList> foodAndBevSet = new HashSet<>();
 }
