@@ -1,5 +1,7 @@
 package com.starterkit.springboot.brs.service;
 
+import com.jayway.jsonpath.Option;
+import com.starterkit.springboot.brs.dto.mapper.FoodBevListMapper;
 import com.starterkit.springboot.brs.dto.mapper.TicketMapper;
 import com.starterkit.springboot.brs.dto.mapper.TripMapper;
 import com.starterkit.springboot.brs.dto.mapper.TripScheduleMapper;
@@ -53,6 +55,15 @@ public class BusReservationServiceImpl implements BusReservationService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private FoodAndBevListRepository fandbevrepos;
+
+    @Autowired
+    private FoodBevRelationRepository foodbevrelationrepos;
+
+    // @Autowired
+    // private FoodBevListMapper fBevListMapper;
 
     /**
      * Retruns all the available stops in the database.
@@ -329,21 +340,28 @@ public class BusReservationServiceImpl implements BusReservationService {
      *
      * @param tripScheduleDto
      * @param userDto
+     * // added by farezas (param for adding food package id)
+     * @param fandbdto
      * @return
      */
     @Override
     @Transactional
-    public TicketDto bookTicket(TripScheduleDto tripScheduleDto, UserDto userDto) {
+    public TicketDto bookTicket(TripScheduleDto tripScheduleDto, UserDto userDto, int fandbdto) {
         User user = getUser(userDto.getEmail());
         if (user != null) {
             Optional<TripSchedule> tripSchedule = tripScheduleRepository.findById(tripScheduleDto.getId());
-            if (tripSchedule.isPresent()) {
+            Optional<FoodAndBevList> fandbevlist = fandbevrepos.findById((long) fandbdto);
+            if (tripSchedule.isPresent() && fandbevlist.isPresent()) {
                 Ticket ticket = new Ticket()
                         .setCancellable(false)
                         .setJourneyDate(tripSchedule.get().getTripDate())
                         .setPassenger(user)
+                        // here is the change #1
+                        .setTotalPrice(tripSchedule.get().getTripDetail().getFare() + fandbevlist.get().getFood_package_price())
                         .setTripSchedule(tripSchedule.get())
-                        .setSeatNumber(tripSchedule.get().getTripDetail().getBus().getCapacity() - tripSchedule.get().getAvailableSeats());
+                        .setSeatNumber(tripSchedule.get().getTripDetail().getBus().getCapacity() - tripSchedule.get().getAvailableSeats())
+                        // here is the change #2
+                        .setFoodAndBev(fandbevlist.get());
                 ticketRepository.save(ticket);
                 tripSchedule.get().setAvailableSeats(tripSchedule.get().getAvailableSeats() - 1); //reduce availability by 1
                 tripScheduleRepository.save(tripSchedule.get());//update schedule
@@ -441,5 +459,23 @@ public class BusReservationServiceImpl implements BusReservationService {
      */
     private RuntimeException exceptionWithId(EntityType entityType, ExceptionType exceptionType, Integer id, String... args) {
         return BRSException.throwExceptionWithId(entityType, exceptionType, id, args);
+    }
+
+    @Override
+    public List<FoodBevDto> getFoodBevListByTripSchedule(Long TripScheduleCode) {
+        Optional<TripSchedule> tripschedule = tripScheduleRepository.findById(TripScheduleCode);
+        if(tripschedule.isPresent()) {
+            // Stop sourceStop = tripschedule.get().getTripDetail().getSourceStop();
+            // List<FoodAndBevList> fAndBevLists = foodbevrelationrepos.findByStops(sourceStop);
+            Set<FoodAndBevList> fAndBevLists = tripschedule.get().getTripDetail().getSourceStop().getFoodAndBevSet();
+
+            List<FoodBevDto> foodAndBevMapped = new ArrayList<>();
+            for (FoodAndBevList fandbobj : fAndBevLists) {
+                foodAndBevMapped.add(FoodBevListMapper.toFoodBevDto(fandbobj));
+            }
+            return foodAndBevMapped;
+        }
+        throw exception(TRIPSCHEDULE, ENTITY_NOT_FOUND, TripScheduleCode.toString());
+        // return null;
     }
 }

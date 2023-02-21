@@ -35,7 +35,6 @@ com/starterkit/springboot/brs/exception/ExceptionType.class
 com/starterkit/springboot/brs/security/api/ApiJWTAuthenticationFilter.class
 com/starterkit/springboot/brs/service/BusReservationServiceImpl.class
 com/starterkit/springboot/brs/controller/v1/ui/AdminController.class
-com/starterkit/springboot/brs/controller/v1/api/BusReservationController.class
 com/starterkit/springboot/brs/dto/model/bus/TicketDto.class
 com/starterkit/springboot/brs/controller/v1/command/ProfileFormCommand.class
 com/starterkit/springboot/brs/controller/v1/request/UserSignupRequest.class

@@ -2,16 +2,13 @@ package com.starterkit.springboot.brs.dto.model.bus;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.ToString;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
-
-/**
- * Created by Arpit Khandelwal.
- */
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -19,24 +16,12 @@ import lombok.experimental.Accessors;
 @ToString
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TicketDto {
+public class FoodBevDto {
     private Long id;
 
-    private String busCode;
+    private String food_package_name;
+    
+    private String food_package_details;
 
-    private int seatNumber;
-
-    private boolean cancellable;
-
-    private String journeyDate;
-
-    private String sourceStop;
-
-    private String destinationStop;
-
-    private String passengerName;
-
-    private String passengerMobileNumber;
-
-    private String foodPackageDescription;
+    private int food_package_price;
 }
