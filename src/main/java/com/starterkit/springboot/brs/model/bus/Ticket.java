@@ -8,6 +8,8 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.Cascade;
+
 /**
  * Created by Arpit Khandelwal.
  */
@@ -28,6 +30,8 @@ public class Ticket {
 
     private Boolean cancellable;
 
+    private int totalPrice;
+
     @Column(name = "journey_date")
     private String journeyDate;
 
@@ -38,4 +42,9 @@ public class Ticket {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User passenger;
+
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "food_package_id")
+    private FoodAndBevList foodAndBev;
 }

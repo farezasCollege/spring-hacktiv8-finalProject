@@ -29,4 +29,7 @@ public class BookTicketRequest {
     @NotNull(message = "{constraints.NotEmpty.message}")
     @Temporal(TemporalType.DATE)
     private Date tripDate;
+
+    @NotEmpty(message = "{constraints.NotEmpty.message}")
+    private int foodPackageId;
 }

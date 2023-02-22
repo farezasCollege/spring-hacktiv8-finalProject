@@ -17,6 +17,7 @@ public class TicketMapper {
                 .setCancellable(false)
                 .setJourneyDate(ticket.getJourneyDate())
                 .setPassengerName(ticket.getPassenger().getFullName())
-                .setPassengerMobileNumber(ticket.getPassenger().getMobileNumber());
+                .setPassengerMobileNumber(ticket.getPassenger().getMobileNumber())
+                .setFoodPackageDescription(ticket.getFoodAndBev().getFood_package_details());
     }
 }

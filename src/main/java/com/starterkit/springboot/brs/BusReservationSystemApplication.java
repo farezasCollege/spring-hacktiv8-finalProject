@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Bean;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 @SpringBootApplication
 public class BusReservationSystemApplication {
@@ -28,7 +30,8 @@ public class BusReservationSystemApplication {
     CommandLineRunner init(RoleRepository roleRepository, UserRepository userRepository,
                            StopRepository stopRepository, AgencyRepository agencyRepository,
                            BusRepository busRepository, TripRepository tripRepository,
-                           TripScheduleRepository tripScheduleRepository) {
+                           TripScheduleRepository tripScheduleRepository,
+                           FoodAndBevListRepository foodBevListRepository) {
         return args -> {
             //Create Admin and Passenger Roles
             Role adminRole = roleRepository.findByRole(UserRoles.ADMIN);
@@ -158,6 +161,28 @@ public class BusReservationSystemApplication {
                         .setTripDate(DateUtils.todayStr())
                         .setAvailableSeats(trip.getBus().getCapacity());
                 tripScheduleRepository.save(tripSchedule);
+            }
+
+            Long foodBevListCount = foodBevListRepository.count();
+            if(foodBevListCount < 1) {
+
+                // add food bev 1
+                FoodAndBevList foodbevlist1 = new FoodAndBevList()
+                .setFood_package_name("FAB01")
+                .setFood_package_details("nasi goreng telur dan es teh")
+                .setFood_package_price(20);
+
+                // add food bev 2
+                FoodAndBevList foodbevlist2 = new FoodAndBevList()
+                .setFood_package_name("FAB02")
+                .setFood_package_details("nasi sop dengan telur dadar dan es teh")
+                .setFood_package_price(15);
+
+                List<FoodAndBevList> foodbeviterable = new ArrayList<>();
+                foodbeviterable.add(foodbevlist1);
+                foodbeviterable.add(foodbevlist2);
+                
+                foodBevListRepository.saveAll(foodbeviterable);
             }
         };
     }
