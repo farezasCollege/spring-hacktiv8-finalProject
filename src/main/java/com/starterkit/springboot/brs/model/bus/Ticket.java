@@ -8,8 +8,6 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.Cascade;
-
 /**
  * Created by Arpit Khandelwal.
  */

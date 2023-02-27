@@ -2,6 +2,7 @@ package com.starterkit.springboot.brs.service;
 
 import com.jayway.jsonpath.Option;
 import com.starterkit.springboot.brs.dto.mapper.FoodBevListMapper;
+import com.starterkit.springboot.brs.dto.mapper.FoodOrderHistoryMapper;
 import com.starterkit.springboot.brs.dto.mapper.TicketMapper;
 import com.starterkit.springboot.brs.dto.mapper.TripMapper;
 import com.starterkit.springboot.brs.dto.mapper.TripScheduleMapper;
@@ -61,6 +62,9 @@ public class BusReservationServiceImpl implements BusReservationService {
 
     @Autowired
     private FoodBevRelationRepository foodbevrelationrepos;
+
+    @Autowired
+    private FoodOrderHistoryRepository foodhistrepos;
 
     // @Autowired
     // private FoodBevListMapper fBevListMapper;
@@ -352,6 +356,7 @@ public class BusReservationServiceImpl implements BusReservationService {
             Optional<TripSchedule> tripSchedule = tripScheduleRepository.findById(tripScheduleDto.getId());
             Optional<FoodAndBevList> fandbevlist = fandbevrepos.findById((long) fandbdto);
             if (tripSchedule.isPresent() && fandbevlist.isPresent()) {
+                // ini bikin tiket baru =======
                 Ticket ticket = new Ticket()
                         .setCancellable(false)
                         .setJourneyDate(tripSchedule.get().getTripDate())
@@ -365,6 +370,24 @@ public class BusReservationServiceImpl implements BusReservationService {
                 ticketRepository.save(ticket);
                 tripSchedule.get().setAvailableSeats(tripSchedule.get().getAvailableSeats() - 1); //reduce availability by 1
                 tripScheduleRepository.save(tripSchedule.get());//update schedule
+                // ============================
+
+                // ini bikin history tiket ===========
+                FoodOrderHistory fordhist = new FoodOrderHistory()
+                .setBus_agency_name(tripSchedule.get().getTripDetail().getAgency().getName())
+                .setBus_code(tripSchedule.get().getTripDetail().getBus().getCode())
+                .setDest_stop(tripSchedule.get().getTripDetail().getDestStop().getName())
+                .setSource_stop(tripSchedule.get().getTripDetail().getSourceStop().getName())
+                .setFood_package_name(fandbevlist.get().getFood_package_name())
+                .setFood_package_details(fandbevlist.get().getFood_package_details())
+                .setJourney_date(String.valueOf(tripSchedule.get().getTripDetail().getJourneyTime()))
+                .setTrip_date(tripSchedule.get().getTripDate())
+                .setTrip_fare(tripSchedule.get().getTripDetail().getFare())
+                .setUser(user);
+
+                foodhistrepos.save(fordhist);
+
+                // ===================================
                 return TicketMapper.toTicketDto(ticket);
             }
             throw exceptionWithId(TRIP, ENTITY_NOT_FOUND, 2, tripScheduleDto.getTripId().toString(), tripScheduleDto.getTripDate());
@@ -477,5 +500,21 @@ public class BusReservationServiceImpl implements BusReservationService {
         }
         throw exception(TRIPSCHEDULE, ENTITY_NOT_FOUND, TripScheduleCode.toString());
         // return null;
+    }
+
+    @Override
+    public List<FoodOrderHistoryDto> getFoodOrderHistorySummary(String email) {
+        Optional<User> user_avail = Optional.ofNullable(this.getUser(email));      // untuk mendapatkan turunan dari kelas Opsional dengan nilai tertentu dari tipe yang ditentukan.
+        if(user_avail.isPresent()) {
+            Set<FoodOrderHistory> foodOrderHistory = user_avail.get().getForderHist();
+
+            List<FoodOrderHistoryDto> foodHistMapped = new ArrayList<>();
+            for (FoodOrderHistory foodOrderHist : foodOrderHistory) {
+                foodHistMapped.add(FoodOrderHistoryMapper.toOrderHistoryDto(foodOrderHist)); // Menambahkan FoodOrderHistoryMapper menuju OrderHistoryDto
+            }
+
+            return foodHistMapped;
+        }
+        throw exception(USER , ENTITY_NOT_FOUND, "user not found");  // throw digunakan untuk secara eksplisit melempar sebuah exception
     }
 }

@@ -42,4 +42,6 @@ public interface BusReservationService {
     TicketDto bookTicket(TripScheduleDto tripScheduleDto, UserDto passenger, int fandbdto);
 
     List<FoodBevDto> getFoodBevListByTripSchedule(Long TripScheduleCode);
+
+    List<FoodOrderHistoryDto> getFoodOrderHistorySummary(String email);  // history
 }

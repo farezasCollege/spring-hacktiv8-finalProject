@@ -3,10 +3,12 @@ package com.starterkit.springboot.brs.controller.v1.api;
 import com.starterkit.springboot.brs.controller.v1.request.BookTicketRequest;
 import com.starterkit.springboot.brs.controller.v1.request.GetTripSchedulesRequest;
 import com.starterkit.springboot.brs.dto.model.bus.FoodBevDto;
+import com.starterkit.springboot.brs.dto.model.bus.FoodOrderHistoryDto;
 // import com.starterkit.springboot.brs.dto.model.bus.FoodBevDto;
 import com.starterkit.springboot.brs.dto.model.bus.TicketDto;
 import com.starterkit.springboot.brs.dto.model.bus.TripDto;
 import com.starterkit.springboot.brs.dto.model.bus.TripScheduleDto;
+import com.starterkit.springboot.brs.dto.model.user.RoleDto;
 import com.starterkit.springboot.brs.dto.model.user.UserDto;
 import com.starterkit.springboot.brs.dto.response.Response;
 import com.starterkit.springboot.brs.model.bus.FoodAndBevList;
@@ -110,5 +112,25 @@ public class BusReservationController {
         }
 
         return Response.badRequest().setErrors("Error get food list");
+    }
+
+    @GetMapping("/getfoodorderhistory")
+    @ApiOperation(value = "", authorizations = {@Authorization(value = "apiKey")})
+    public Response getFoodOrderHistory(@Valid String email) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String authEmail = (String) auth.getPrincipal();
+        Optional<UserDto> userDto = Optional.ofNullable(userService.findUserByEmail(authEmail));
+
+        Boolean isAdmin = userDto.get().getRoles().iterator().next().getRole().equalsIgnoreCase("ADMIN");
+
+        if(userDto.isPresent() && isAdmin) {
+            Optional<List<FoodOrderHistoryDto>> foodOrderList = Optional.ofNullable(busReservationService.getFoodOrderHistorySummary(email));
+
+            if(foodOrderList.isPresent()) {
+                return Response.ok().setPayload(foodOrderList);
+            }
+            return Response.badRequest().setErrors("Error get food order history");
+        }
+        return Response.accessDenied().setErrors("You do not have access to this information");
     }
 }

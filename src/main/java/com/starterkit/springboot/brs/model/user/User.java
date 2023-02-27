@@ -6,7 +6,11 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+
+import com.starterkit.springboot.brs.model.bus.FoodOrderHistory;
+
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -47,6 +51,9 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Collection<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    private Set<FoodOrderHistory> forderHist = new HashSet<>();
 
     public String getFullName() {
         return firstName != null ? firstName.concat(" ").concat(lastName) : "";
